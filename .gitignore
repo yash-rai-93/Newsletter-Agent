@@ -1,0 +1,31 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Outputs (generated files)
+outputs/*.html
+outputs/*.txt
+!outputs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store

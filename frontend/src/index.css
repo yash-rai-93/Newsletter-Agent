@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --bg:          #0f1117;
+  --bg-subtle:   #161b27;
+  --bg-raised:   #1c2333;
+  --border:      #2a3347;
+  --border-soft: #1e2a3a;
+
+  --text-primary:   #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted:     #4a5568;
+
+  --accent:       #3b82f6;
+  --green:        #10b981;
+  --amber:        #f59e0b;
+  --red:          #ef4444;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar         { width: 5px; height: 5px; }
+::-webkit-scrollbar-track   { background: transparent; }
+::-webkit-scrollbar-thumb   { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3a4a62; }
+
+@keyframes spin       { to { transform: rotate(360deg); } }
+@keyframes fadeUp     { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse-dot  { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.animate-spin    { animation: spin 0.75s linear infinite; }
+.animate-fade-up { animation: fadeUp 0.2s ease forwards; }
+.animate-pulse   { animation: pulse-dot 1.5s ease-in-out infinite; }
