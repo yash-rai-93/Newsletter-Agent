@@ -1,247 +1,98 @@
----
-title: Newsletter Agent
-emoji: 📰
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-pinned: false
----
+# Newsletter Agent — Autonomous AI Research & Delivery
 
-# 📰 Newsletter Agent
+Newsletter Agent is a fully autonomous, multi-step AI agentic system designed to research industry news, curate content, and generate professional-grade HTML newsletters. Built with LangGraph and Gemini, it supports both fully autonomous operation and Human-in-the-Loop (HITL) checkpoints for quality control.
 
-> A fully autonomous AI agent that researches, writes, critiques, and delivers newsletters — powered by Gemini + LangGraph.
+## Features
 
-[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
-[![LangGraph](https://img.shields.io/badge/LangGraph-0.2+-green.svg)](https://langchain-ai.github.io/langgraph/)
-[![Gemini](https://img.shields.io/badge/LLM-Gemini%202.5%20Flash-blue.svg)](https://ai.google.dev/)
-[![FastAPI](https://img.shields.io/badge/API-FastAPI-teal.svg)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/Frontend-React%2018-blue.svg)](https://react.dev)
+- **Autonomous Research**: Generates targeted search queries and scrapes the web for the latest industry updates using the Tavily API.
+- **Smart Summarization**: Extracts key insights and value propositions from multiple articles using Gemini's large context window.
+- **Self-Critique & Improvement**: An internal "Editor" node scores drafts and triggers automatic rewrites if quality standards are not met.
+- **Human-in-the-Loop (HITL)**: Optional checkpoints to review and modify research plans, content drafts, or final outputs before delivery.
+- **Real-time Streaming**: A React-based frontend that visualizes the agent's reasoning steps and progress via Server-Sent Events (SSE).
+- **One-Click Deployment**: Dockerized setup optimized for Hugging Face Spaces.
 
----
+## The Agent Pipeline
 
-## ✨ What It Does
+The core logic is orchestrated as a stateful graph where each node represents a specialized task:
 
-One function call. Full newsletter. No hand-holding.
+1. **Plan**: LLM analyzes the goal and creates a research strategy with 4-6 search queries.
+2. **Research**: Parallel web searching and content fetching (scraping).
+3. **Summarize**: Distilling long articles into concise, actionable summaries.
+4. **Write**: Drafting the newsletter in Markdown (Intro, Content, Conclusion).
+5. **Review**: Self-scoring (1-10) based on relevance and tone.
+6. **Improve**: (Conditional) Automatic revision if the score is <7.
+7. **Generate HTML**: Conversion of Markdown into a responsive, styled email template.
 
-```python
-run_newsletter_agent("Create a weekly newsletter on latest AI agent news")
-```
+## Tech Stack
 
-The agent autonomously:
-1. 🧠 **Plans** — Extracts topic, creates research strategy, generates search queries
-2. 🔍 **Researches** — Searches and fetches top 5-7 articles via Tavily
-3. ✍️ **Writes** — Generates a polished newsletter with intro, articles, and CTA
-4. 🎨 **Designs** — Converts to beautiful responsive HTML
-5. 🔎 **Reviews** — Self-critiques and scores its own output (1-10)
-6. 🔄 **Improves** — Rewrites if quality score < 7 (max 2 iterations)
-7. 💾 **Outputs** — Saves HTML file + logs subject line
+| Layer | Technology |
+| --- | --- |
+| LLM | Google Gemini (1.5 Flash / Pro) |
+| Agent Framework | LangGraph (Stateful, HITL support) |
+| Search Engine | Tavily AI |
+| Backend | FastAPI (Python) |
+| Frontend | React + Vite + Tailwind CSS |
+| Deployment | Docker / Hugging Face Spaces |
 
-## 🎛️ Two Modes
+## Installation & Setup
 
-| Autonomous | Human-in-the-Loop |
-|-----------|-------------------|
-| Zero intervention | 3 review checkpoints |
-| Fastest path to output | You control quality |
-| Great for automation | Great for learning |
+### 1. Prerequisites
 
----
-
-## 🏗️ Architecture
-
-```
-React Frontend (SSE live updates)
-       ↕ HTTP + Server-Sent Events
-FastAPI Backend
-       ↕
-LangGraph Agent Pipeline
-  Plan → Research → Write → Review → [Improve] → Output
-       ↕
-Gemini gemini-2.5-flash (LLM) + Tavily (Search)
-```
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
 - Python 3.11+
 - Node.js 18+
-- Google Gemini API key
-- Tavily API key (free tier works: [tavily.com](https://tavily.com))
+- Google Gemini API Key
+- Tavily API Key
 
-### 1. Clone & Setup
+### 2. Backend Configuration
 
 ```bash
-git clone https://github.com/yourusername/newsletter-agent.git
+# Clone the repository
+git clone https://github.com/your-username/newsletter-agent.git
 cd newsletter-agent
-```
-
-### 2. Backend Setup
-
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure environment
+# Setup environment variables
 cp .env.example .env
-# Edit .env with your API keys
+# Edit .env with your GEMINI_API_KEY and TAVILY_API_KEY
 ```
 
-### 3. Frontend Setup
+### 3. Frontend Configuration
 
 ```bash
 cd frontend
 npm install
-```
-
-### 4. Run
-
-**Terminal 1 — Backend:**
-```bash
-cd newsletter-agent
-source venv/bin/activate
-uvicorn backend.main:app --reload --port 8000
-```
-
-**Terminal 2 — Frontend:**
-```bash
-cd newsletter-agent/frontend
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) 🎉
+## Deployment (Hugging Face Spaces)
 
----
+The project includes a multi-stage Dockerfile that builds the React frontend and serves it via the FastAPI backend in a single container.
 
-## 🐍 Python-Only Usage (No Frontend)
-
-```python
-from backend.agent.graph import run_newsletter_agent
-
-# Fully autonomous
-result = run_newsletter_agent(
-    goal="Create a weekly newsletter on latest AI agent news",
-    mode="autonomous"
-)
-
-print(result["subject_line"])
-print(f"Newsletter saved to: {result['output_path']}")
-print(f"Quality score: {result['quality_score']}/10")
-
-# Human-in-the-loop (terminal prompts)
-result = run_newsletter_agent(
-    goal="Create a weekly newsletter on latest AI agent news",
-    mode="hitl"
-)
-```
-
----
-
-## 📁 Project Structure
-
-```
-newsletter-agent/
-├── PRD.md                    # Full product requirements
-├── README.md                 # This file
-├── .env.example              # Environment variables template
-├── requirements.txt          # Python dependencies
-│
-├── backend/
-│   ├── main.py               # FastAPI server + SSE streaming
-│   ├── agent/
-│   │   ├── state.py          # Agent state definition
-│   │   ├── tools.py          # Web search, fetch, HTML tools
-│   │   ├── prompts.py        # All LLM prompts
-│   │   ├── nodes.py          # Agent node functions
-│   │   └── graph.py          # LangGraph pipeline
-│   └── utils/
-│       └── html_generator.py # HTML newsletter template
-│
-├── frontend/
-│   └── src/
-│       ├── App.jsx           # Main app
-│       └── components/       # UI components
-│
-└── outputs/                  # Generated newsletters
-```
-
----
-
-## 🔧 Configuration
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GEMINI_API_KEY` | Gemini API key | Required |
-| `TAVILY_API_KEY` | Tavily search key | Required |
-| `MAX_ARTICLES` | Articles to research | 7 |
-| `MIN_QUALITY_SCORE` | Minimum before rewrite | 7 |
-| `MAX_IMPROVE_ITERATIONS` | Max self-improvement loops | 2 |
-
----
-
-## 🛠️ Tech Stack
-
-| Component | Technology |
-|-----------|-----------|
-| LLM | Gemini gemini-2.5-flash (Google) |
-| Agent Framework | LangGraph |
-| LLM Integration | LangChain Google GenAI |
-| Web Search | Tavily API |
-| Backend | FastAPI + uvicorn |
-| Frontend | React 18 + Vite + Tailwind CSS |
-| Streaming | Server-Sent Events (SSE) |
-
----
-
-## 📸 Features Showcase
-
-- **Real-time step visualization** — watch the agent think, search, and write live
-- **HTML newsletter preview** — rendered inline in the browser
-- **HITL modal** — clean review interface with approval/rejection flow
-- **Export** — download HTML, copy subject line
-- **Quality scores** — see the agent's self-evaluation
-
----
-
-## 📄 License
-
-MIT License — use freely, attribution appreciated.
-
----
-
-## 🐳 Docker / Hugging Face Spaces Deployment
-
-### Build & run locally with Docker
-
-```bash
-# Copy your env vars into the build
-cp .env.example .env
-# Edit .env with real API keys
-
-docker build -t newsletter-agent .
-docker run -p 7860:7860 \
-  -e GEMINI_API_KEY=your_key \
-  -e TAVILY_API_KEY=your_key \
-  newsletter-agent
-# → Open http://localhost:7860
-```
-
-### Deploy to Hugging Face Spaces
-
-1. Create a new Space → **Docker** SDK
-2. Push this repo:
-   ```bash
-   git remote add hf https://huggingface.co/spaces/YOUR_USER/newsletter-agent
-   git push hf main
-   ```
-3. In Space **Settings → Variables**, add:
-   - `GEMINI_API_KEY`
+1. Create a new Docker Space on Hugging Face.
+2. Upload the repository files.
+3. In the Space Settings, add the following Secrets:
+   - `GOOGLE_API_KEY`
    - `TAVILY_API_KEY`
-4. Space builds automatically and goes live on port 7860.
+4. The Space will automatically build and deploy to port 7860.
 
-> The single Docker image builds the React frontend, then serves it  
-> via FastAPI (`backend/main_hf.py`) alongside the `/api/*` endpoints.
+## Project Structure
+
+```plaintext
+newsletter-agent/
+├── backend/
+│   ├── agent/             # LangGraph nodes, state, and tools
+│   ├── utils/             # HTML templates and formatting
+│   └── main.py            # FastAPI entry point & SSE logic
+├── frontend/
+│   ├── src/               # React components and UI logic
+│   └── dist/              # Compiled frontend (for production)
+├── outputs/               # Saved newsletter files
+├── Dockerfile             # Multi-stage build for HF deployment
+└── PRD.md                 # Product Requirements Document
+```
+
+## License
+
+Distributed under the MIT License. See LICENSE for more information.
